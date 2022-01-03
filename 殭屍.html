@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="//db.onlinewebfonts.com/c/6daafe4bf5f24958dc640da592c230c4?family=MStiffHeiHK" rel="stylesheet"
+    type="text/css" />
+  <style>
+    @font-face {
+      font-family: 'BRHRDBC';
+      src: url('./BRHRDBC.woff')format("woff"),
+        url('./BRHRDBC.TTF')format("truetype"),
+        url('./BRHRDBC.eot')format("embedded-opentype");
+    }
+
+    @font-face {
+      font-family: 'MStiffHeiHK-UltraBold';
+      src: url('./MStiffHeiHK-UltraBold.woff2')format("woff"),
+        url('./MStiffHeiHK-UltraBold.ttf')format("truetype"),
+        url('./MStiffHeiHK-UltraBold.eot')format("embedded-opentype");
+    }
+
+    @import url(https://fonts.googleapis.com/css?family=Lato:400,100,300,700,100italic,300italic,400italic,700italic,900,900italic);
+    @import url(https://fonts.googleapis.com/css?family=Raleway:400,700);
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+    }
+
+    p {
+      font-family: 'MStiffHeiHK-UltraBold', 'BRHRDBC';
+      font-size: 40px;
+      color: rgb(255, 217, 0);
+
+    }
+
+    .container {
+      display: flex;
+      /* background: rgb(157, 249, 249); */
+
+
+    }
+
+    #game {
+      background-image: url(./bg.gif);
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 600px;
+      width: 800px;
+      overflow: hidden;
+      position: relative;
+      position: fixed;
+      margin: auto;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: space-around;
+    }
+
+    #game img {
+      height: 150px;
+      position: absolute;
+    }
+
+
+    #btn-start {
+      width: 120px;
+      height: 40px;
+      background: rgba(white, 0);
+      border-bottom: 1px solid;
+      color: rgb(107, 6, 133);
+      line-height: 1.4;
+      padding: .25em;
+      text-decoration: none;
+      left: 50%;
+      top: 90%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+
+    }
+
+    .btn {
+      border: 0 solid;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0);
+      outline: 1px solid;
+      outline-color: rgba(255, 255, 255, .5);
+      outline-offset: 0px;
+      text-shadow: none;
+      transition: all 1250ms cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .btn:hover {
+      border: 1px solid;
+      box-shadow: 0 0 20px rgb(255, 255, 255), 0 0 20px rgba(255, 255, 255, .2);
+      outline-color: rgba(0, 0, 0, 0);
+      outline-offset: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="box1">
+
+      <input type="button" value="開始遊戲" id="btn-start" class="btn">
+
+      <br>
+
+    </div>
+
+    <div class="box2">
+
+      <div id="game">
+        <p>SCORE: <span id="score">0</span></p>
+        <p>剩餘: <span id="time">0</span> 秒</p>
+      </div>
+    </div>
+  </div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
+    integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=='
+    crossorigin='anonymous'></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    //分數
+    let score = 0
+    //倒數時間
+    let countdown = 30
+    //倒數計時器
+    let timer = 0
+
+    const move = (monster1) => {
+      const top = `${Math.round(Math.random() * 70)}%`
+      const left = `${Math.round(Math.random() * 70)}%`
+      monster1.stop().animate({
+        top: top,
+        left
+      }, 2000, function () {
+        move(monster1)
+      })
+    }
+    $('#btn-start').click(function () {
+      const _this = this
+      //停用開始按鈕
+      $(this).attr('disabled', true)
+      score = 0
+      //重設 
+      $('#score').text(score)
+      countdown = 30
+      $('#time').text(countdown)
+
+      //開始遊戲
+      timer = setInterval(function () {
+        //倒數
+        countdown--
+        $('#time').text(countdown)
+
+        //隨機產生殭屍
+        let random = Math.round(Math.random() * 10)
+        if (random > 5 && $("#game .monster1").length < 10) {
+          const top = `${Math.round(Math.random() * 70)}%`
+          const left = `${Math.round(Math.random() * 70)}%`
+          const monster1 = $(`<img class="monster1" src="./monster1.gif" style="top:${top}; left:${left}">`)
+          $("#game").append(monster1)
+          move(monster1)
+        }
+        //時間到
+        if (countdown <= 0) {
+          clearInterval(timer)
+          $('#game img').remove()
+          $(_this).attr('disabled', false)
+          Swal.fire({
+            icon: 'info',
+            title: '時間到',
+            text: `你得到${score} 分`
+          })
+        }
+      }, 1000)
+    })
+
+    $('#game').on('click', 'img', function () {
+      $(this).attr('src', '')
+      $(this).stop()
+      $(this).css({
+        'user-select': 'none',
+        '-webkit-user-drag': 'none',
+        'pointer-events': 'none'
+      })
+      $(this).removeClass('monster1').addClass('blood')
+      score++
+      $('#score').text(score)
+
+    })
+  </script>
+
+
+</body>
+
+</html>
